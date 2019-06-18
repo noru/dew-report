@@ -9,40 +9,33 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const utils = require('./utils')
 const config = require('../config')
 
-const publicPath = process.env.PUB_PATH || utils.getProdPublicPath('/geapm')
+const publicPath = process.env.PUB_PATH || '/dew-report/'
 
 const webpackConfig = merge(baseWebpackConfig, {
   devtool: false,
   entry: {
-    vendor: [
-      'babel-polyfill'
-    ],
-    app: './src/index.js'
+    vendor: ['babel-polyfill'],
+    app: './src/index.js',
   },
   output: {
     filename: '[name].[hash].js',
     publicPath,
     chunkFilename: '[name].[hash].js',
-    sourceMapFilename: '[name].[hash].map'
+    sourceMapFilename: '[name].[hash].map',
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: [
-          'babel-loader'
-        ]
+        use: ['babel-loader'],
       },
       {
         test: /\.css$/,
         exclude: /node_modules/,
         loader: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use:[
-            'css-loader',
-            'postcss-loader'
-          ]
+          use: ['css-loader', 'postcss-loader'],
         }),
       },
       {
@@ -56,13 +49,13 @@ const webpackConfig = merge(baseWebpackConfig, {
               options: {
                 module: true,
                 importLoaders: 2,
-                localIdentName: '[local]__[hash:base64:5]'
-              }
+                localIdentName: '[local]__[hash:base64:5]',
+              },
             },
             'postcss-loader',
-            'sass-loader'
-          ]
-        })
+            'sass-loader',
+          ],
+        }),
       },
       {
         test: /\.s[ca]ss$/,
@@ -73,13 +66,13 @@ const webpackConfig = merge(baseWebpackConfig, {
             {
               loader: 'css-loader',
               options: {
-                importLoaders: 2
-              }
+                importLoaders: 2,
+              },
             },
             'postcss-loader',
-            'sass-loader'
-          ]
-        })
+            'sass-loader',
+          ],
+        }),
       },
       {
         test: /\.less$/,
@@ -89,41 +82,41 @@ const webpackConfig = merge(baseWebpackConfig, {
             {
               loader: 'css-loader',
               options: {
-                importLoaders: 1
-              }
+                importLoaders: 1,
+              },
             },
             {
               loader: 'less-loader',
               options: {
-                modifyVars: require('./theme.js')
-              }
-            }
-          ]
+                modifyVars: require('./theme.js'),
+              },
+            },
+          ],
         }),
-        include: /node_modules/
+        include: /node_modules/,
       },
       {
         test: /\.(jpg|jpeg|png|gif|ico|svg)$/,
         use: [
           {
-            loader:'url-loader',
+            loader: 'url-loader',
             options: {
               limit: 10000,
-              name: 'assets/[name].[hash].[ext]'
-            }
-          }
-        ]
-      }
-    ]
+              name: 'assets/[name].[hash].[ext]',
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
-      'process.env': '"production"'
+      'process.env': '"production"',
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true,
-      debug: false
+      debug: false,
     }),
     new HtmlWebpackPlugin({
       template: './public/index.xhtml',
@@ -135,39 +128,39 @@ const webpackConfig = merge(baseWebpackConfig, {
         const o1 = orders.indexOf(c1.names[0])
         const o2 = orders.indexOf(c2.names[0])
         return o1 - o2
-      }
+      },
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
       filename: 'index.html',
-      inject: true
+      inject: true,
     }),
     new webpack.optimize.UglifyJsPlugin({
       beautify: false,
       mangle: {
         screw_ie8: true,
-        keep_fnames: true
+        keep_fnames: true,
       },
       compress: {
         screw_ie8: true,
-        warnings: false
+        warnings: false,
       },
-      comments: false
+      comments: false,
     }),
     // Put all css code in this file
     // extract css into its own file
     new ExtractTextPlugin({
-      filename: '[name].[contenthash].css'
+      filename: '[name].[contenthash].css',
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
     new OptimizeCSSPlugin({
       cssProcessorOptions: {
-        safe: true
-      }
+        safe: true,
+      },
     }),
-    new FriendlyErrorsPlugin()
-  ]
+    new FriendlyErrorsPlugin(),
+  ],
 })
 
 const bundleAnalyzerReport = process.env.NODE_ENV === 'analysis'
