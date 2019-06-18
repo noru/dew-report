@@ -7,7 +7,6 @@ import moment from 'moment'
 const REPORT_NAME = 'FailureAnalysis'
 
 export default {
-
   namespace: `${REPORT_NAME}`,
 
   state: {
@@ -19,7 +18,7 @@ export default {
     },
     period: {
       from: moment(new Date().getFullYear(), 'YYYY'),
-      to: moment()
+      to: moment(),
     },
     dataType: 'operation_rate',
     showLastYear: false,
@@ -33,13 +32,12 @@ export default {
       right: {
         skip: 0,
         top: 16,
-        total: 0
-      }
+        total: 0,
+      },
     },
   },
 
   reducers: {
-
     ['update/filter'](state, { data }) {
       state = cloneDeep(state)
       state.filterBy[data.type] = data.data.key
@@ -50,7 +48,7 @@ export default {
       state = cloneDeep(state)
       state.period = {
         from: data[0],
-        to: data[1]
+        to: data[1],
       }
       return state
     },
@@ -78,8 +76,7 @@ export default {
       let pag = state.pagination[data.type]
       Object.assign(pag, data.value)
       return state
-    }
-
+    },
   },
 
   effects: {
@@ -134,7 +131,10 @@ export default {
           skip: briefs.pages.start,
         }
         yield put({ type: 'update/pagination/sync', data: { type, value } })
-        EventBus.dispatch('failure-analysis-brief-data', [ briefs, lastYear ])
+
+        setTimeout(() => {
+          EventBus.dispatch('failure-analysis-brief-data', [briefs, lastYear])
+        }, 2000)
       } catch (e) {
         error(e)
       }
@@ -142,23 +142,24 @@ export default {
 
     paramWatcher: [
       function*({ takeLatest, put }) {
-        yield takeLatest(act => act.type.startsWith('FailureAnalysis/update/') && !act.type.endsWith('sync')
-        , function*(action) {
+        yield takeLatest(act => act.type.startsWith('FailureAnalysis/update/') && !act.type.endsWith('sync'), function*(
+          action
+        ) {
           yield put({ type: 'get/all' })
         })
       },
-      { type: 'watcher' }
+      { type: 'watcher' },
     ],
     deptWatcher: [
       function*({ takeLatest, put }) {
-        yield takeLatest(act => act.type === 'depts/update/depts' && location.href.indexOf(REPORT_NAME) > -1
-        , function*(action) {
-          yield put({ type: 'update/filter', data: { type: 'dept', data: { key: 'all_dept'}} })
+        yield takeLatest(act => act.type === 'depts/update/depts' && location.href.indexOf(REPORT_NAME) > -1, function*(
+          action
+        ) {
+          yield put({ type: 'update/filter', data: { type: 'dept', data: { key: 'all_dept' } } })
           yield put({ type: 'get/all' })
         })
       },
-      { type: 'watcher' }
+      { type: 'watcher' },
     ],
-  }
-
+  },
 }
