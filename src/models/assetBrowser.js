@@ -61,30 +61,35 @@ export function formatKey(asset, dimension, ruler) {
 function getClusters(dimension, ruler, assets, activeAssetId, hoveredAssetId, orderBy) {
   const map = assets.groupBy(asset => formatKey(asset, dimension, ruler))
 
-  let list = map.entrySeq().map(([key, value]) => Immutable.fromJS({
-    key,
-    displayName: getDisplayName(key),
-    assetActive: !!activeAssetId,
-    children: value.map(asset => {
-      const id = asset.get('id')
-      return asset.withMutations(asset => {
-        asset
-        .set('active', id === activeAssetId)
-        // .set('hovered', id === hoveredAssetId)
-      })
-    }).sort((a, b) => b.get('price') - a.get('price'))
-  }))
+  let list = map.entrySeq().map(([key, value]) =>
+    Immutable.fromJS({
+      key,
+      displayName: getDisplayName(key),
+      assetActive: !!activeAssetId,
+      children: value
+        .map(asset => {
+          const id = asset.get('id')
+          return asset.withMutations(asset => {
+            asset.set('active', id === activeAssetId)
+            // .set('hovered', id === hoveredAssetId)
+          })
+        })
+        .sort((a, b) => b.get('price') - a.get('price')),
+    })
+  )
 
   // debugger
   if (orderBy === 'devices') {
     list = list.sort((a, b) => b.get('children').size - a.get('children').size)
   } else if (orderBy === 'price') {
     function getAveragePrice(children) {
-      return children.reduce((prev, cur) => {
-        let price = cur.get('price', 0)
-        if (price === -1) price = 0
-        return prev + price
-      }, 0) / children.size
+      return (
+        children.reduce((prev, cur) => {
+          let price = cur.get('price', 0)
+          if (price === -1) price = 0
+          return prev + price
+        }, 0) / children.size
+      )
     }
 
     list = list.sort((a, b) => getAveragePrice(b.get('children')) - getAveragePrice(a.get('children')))
@@ -94,10 +99,13 @@ function getClusters(dimension, ruler, assets, activeAssetId, hoveredAssetId, or
     const prevCluster = prev.get(-1)
     if (prevCluster === undefined) return prev.push(cur.withMutations(cur => cur.set('top', 0).set('top_compress', 0)))
 
-    return prev.push(cur.withMutations(cur => {
-      cur.set('top', prevCluster.get('top') + prevCluster.get('children').size * ASSET_HEIGHT + CLUSTER_SPACING)
-         .set('top_compress', prevCluster.get('top_compress') + COMPRESS_ASSET_HEIGHT + COMPRESS_CLUSTER_SPACING)
-    }))
+    return prev.push(
+      cur.withMutations(cur => {
+        cur
+          .set('top', prevCluster.get('top') + prevCluster.get('children').size * ASSET_HEIGHT + CLUSTER_SPACING)
+          .set('top_compress', prevCluster.get('top_compress') + COMPRESS_ASSET_HEIGHT + COMPRESS_CLUSTER_SPACING)
+      })
+    )
   }, Immutable.fromJS([]))
 
   return res
@@ -114,7 +122,9 @@ function updateColumnOffset(column, assetId, viewBoxYRange) {
   if (!assetId) return column.set('offset', 0)
   const currentOffset = column.get('offset', 0)
 
-  const cluster = column.get('clusters').find(cluster => cluster.get('children').some(asset => asset.get('id') === assetId))
+  const cluster = column
+    .get('clusters')
+    .find(cluster => cluster.get('children').some(asset => asset.get('id') === assetId))
   const assetIndex = cluster.get('children').findIndex(asset => asset.get('id') === assetId)
 
   const assetTop = cluster.get('top') + assetIndex * ASSET_HEIGHT
@@ -123,13 +133,13 @@ function updateColumnOffset(column, assetId, viewBoxYRange) {
   if (assetPos === 0) {
     return column.set('offset', currentOffset)
   } else if (assetPos === 1) {
-    let magicVal = cluster.get('children').size * ASSET_HEIGHT / (viewBoxYRange[1] - viewBoxYRange[0])
+    let magicVal = (cluster.get('children').size * ASSET_HEIGHT) / (viewBoxYRange[1] - viewBoxYRange[0])
     magicVal = 1 / (1 + Math.pow(Math.E, magicVal))
     magicVal = magicVal / 6 + 1 / 3
     let offset = viewBoxYRange[1] - (viewBoxYRange[1] - viewBoxYRange[0]) * magicVal - assetTop
     return column.set('offset', offset)
   } else if (assetPos === -1) {
-    let magicVal = cluster.get('children').size * ASSET_HEIGHT / (viewBoxYRange[1] - viewBoxYRange[0])
+    let magicVal = (cluster.get('children').size * ASSET_HEIGHT) / (viewBoxYRange[1] - viewBoxYRange[0])
     magicVal = 1 / (1 + Math.pow(Math.E, magicVal))
     magicVal = magicVal / 6 + 1 / 3
     let offset = viewBoxYRange[0] + (viewBoxYRange[1] - viewBoxYRange[0]) * magicVal - assetTop
@@ -157,19 +167,19 @@ export default {
       left: 0,
       right: 0,
       top: 0,
-      bottom: 0
+      bottom: 0,
     },
-    columns: []
+    columns: [],
   }),
   subscriptions: {
     setup({ dispatch, history }) {
       return history.listen(({ query, pathname }) => {
         if (pathname !== 'AssetBrowser') return
         dispatch({
-          type: 'data/get'
+          type: 'data/get',
         })
       })
-    }
+    },
   },
   effects: {
     *['data/get'](_, { put, call, select }) {
@@ -186,94 +196,108 @@ export default {
               item.func = item.group
               return item
             }),
-            rulers: [{
-              dimension: 'price',
-              ticks: [[-Infinity, 1e4], [1e4, 1e5], [1e5, 5e5], [5e5, 1e6], [1e6, 5e6], [5e6, 1e7], [1e7, Infinity]]
-            }],
+            rulers: [
+              {
+                dimension: 'price',
+                ticks: [[-Infinity, 1e4], [1e4, 1e5], [1e5, 5e5], [5e5, 1e6], [1e6, 5e6], [5e6, 1e7], [1e7, Infinity]],
+              },
+            ],
             // As Jianbin's request, remove 'func' for good, hide 'supplier' for the time being
             // dimensions: ['func', 'type', 'dept', 'supplier', 'price', 'yoi']
-            dimensions: ['type', 'dept', 'price', 'yoi']
-          }
+            dimensions: ['type', 'dept', 'price', 'yoi'],
+          },
         })
-      } catch(err) {
+      } catch (err) {
         yield put({
           type: 'data/get/failed',
-          payload: err
+          payload: err,
         })
       }
     },
-    addWatcher: [ function* ({ takeLatest, put, call, select }) {
-      const paload = yield takeLatest(
-        [
-          'assetBrowser/active/clear',
-          'assetBrowser/hydrate',
-          'assetBrowser/asset/clicked',
-          'assetBrowser/viewBox/update',
-          'assetBrowser/filters/removeLast',
-          'assetBrowser/filters/toggle',
-          'assetBrowser/filters/remove',
-          'assetBrowser/orderBy/set'
-        ],
-        function* (action) {
-          const assetBrowser = yield select(state => state.assetBrowser)
-          const height = assetBrowser.getIn(['viewBox', 'height'])
-          const pageIndex = assetBrowser.get('pageIndex')
-          const dimensions = assetBrowser.get('dimensions')
-          const filters = assetBrowser.get('filters')
-          const rulers = assetBrowser.get('rulers')
-          const compress = assetBrowser.get('compressMode')
-          const assets = assetBrowser.get('assets').filter(asset => {
-            return filters.every(filter => {
-              const formattedKey = formatKey(asset, filter.get('dimension'), rulers.find(ruler => ruler.get('dimension') === filter.get('dimension')))
-              return formattedKey === filter.get('key')
+    addWatcher: [
+      function*({ takeLatest, put, call, select }) {
+        const paload = yield takeLatest(
+          [
+            'assetBrowser/active/clear',
+            'assetBrowser/hydrate',
+            'assetBrowser/asset/clicked',
+            'assetBrowser/viewBox/update',
+            'assetBrowser/filters/removeLast',
+            'assetBrowser/filters/toggle',
+            'assetBrowser/filters/remove',
+            'assetBrowser/orderBy/set',
+          ],
+          function*(action) {
+            const assetBrowser = yield select(state => state.assetBrowser)
+            const height = assetBrowser.getIn(['viewBox', 'height'])
+            const pageIndex = assetBrowser.get('pageIndex')
+            const dimensions = assetBrowser.get('dimensions')
+            const filters = assetBrowser.get('filters')
+            const rulers = assetBrowser.get('rulers')
+            const compress = assetBrowser.get('compressMode')
+            const assets = assetBrowser.get('assets').filter(asset => {
+              return filters.every(filter => {
+                const formattedKey = formatKey(
+                  asset,
+                  filter.get('dimension'),
+                  rulers.find(ruler => ruler.get('dimension') === filter.get('dimension'))
+                )
+                return formattedKey === filter.get('key')
+              })
             })
-          })
-          const activeAssetId = assetBrowser.get('activeAssetId')
-          const hoveredAssetId = assetBrowser.get('hoveredAssetId')
-          const width = assetBrowser.getIn(['viewBox', 'width'])
-          const orderBy = assetBrowser.get('orderBy')
-          let columns = assetBrowser.get('columns')
+            const activeAssetId = assetBrowser.get('activeAssetId')
+            const hoveredAssetId = assetBrowser.get('hoveredAssetId')
+            const width = assetBrowser.getIn(['viewBox', 'width'])
+            const orderBy = assetBrowser.get('orderBy')
+            let columns = assetBrowser.get('columns')
 
-          const columnXs = distributeColumns(width, dimensions.size)
+            const columnXs = distributeColumns(width, dimensions.size)
 
-          columns = dimensions.map((dimension, index) => {
-            return columns.get(index, Immutable.fromJS({})).merge(Immutable.fromJS({
-              dimension,
-              left: columnXs[index],
-              clusters: getClusters(
-                dimension,
-                rulers.find(ruler => ruler.get('dimension') === dimension),
-                assets,
-                activeAssetId,
-                hoveredAssetId,
-                orderBy
+            columns = dimensions.map((dimension, index) => {
+              return columns.get(index, Immutable.fromJS({})).merge(
+                Immutable.fromJS({
+                  dimension,
+                  left: columnXs[index],
+                  clusters: getClusters(
+                    dimension,
+                    rulers.find(ruler => ruler.get('dimension') === dimension),
+                    assets,
+                    activeAssetId,
+                    hoveredAssetId,
+                    orderBy
+                  ),
+                })
               )
-            }))
-          })
+            })
 
-          columns = columns.map(column => updateColumnOffset(column, activeAssetId, [pageIndex * height, (pageIndex + 1) * height]))
+            columns = columns.map(column =>
+              updateColumnOffset(column, activeAssetId, [pageIndex * height, (pageIndex + 1) * height])
+            )
 
-          const maxPage = columns.reduce((prev, column) => {
-            const lastCluster = column.getIn(['clusters', -1])
-            const bottom = compress ?
-              lastCluster.get('top_compress') + COMPRESS_ASSET_HEIGHT + COMPRESS_CLUSTER_SPACING :
-              lastCluster.get('top') + lastCluster.get('children').size * ASSET_HEIGHT + CLUSTER_SPACING
-            const maxPage = Math.floor(bottom / height) + 1
-            return prev > maxPage ? prev : maxPage
-          }, 0)
+            const maxPage = columns.reduce((prev, column) => {
+              const lastCluster = column.getIn(['clusters', -1])
+              const bottom = compress
+                ? lastCluster.get('top_compress') + COMPRESS_ASSET_HEIGHT + COMPRESS_CLUSTER_SPACING
+                : lastCluster.get('top') + lastCluster.get('children').size * ASSET_HEIGHT + CLUSTER_SPACING
+              const maxPage = Math.floor(bottom / height) + 1
+              return prev > maxPage ? prev : maxPage
+            }, 0)
 
-          if (assetBrowser.get('maxPage') !== maxPage) yield put({
-            type: 'maxPage/update',
-            payload: maxPage
-          })
+            if (assetBrowser.get('maxPage') !== maxPage)
+              yield put({
+                type: 'maxPage/update',
+                payload: maxPage,
+              })
 
-          yield put({
-            type: 'columns/update',
-            payload: columns
-          })
-        }
-      )
-    }, { type: 'watcher'}]
+            yield put({
+              type: 'columns/update',
+              payload: columns,
+            })
+          }
+        )
+      },
+      { type: 'watcher' },
+    ],
   },
   reducers: {
     ['orderBy/set'](state, { payload }) {
@@ -285,23 +309,21 @@ export default {
     },
     ['data/get/failed'](state) {
       return state.withMutations(state => {
-        state
-        .set('loading', false)
-        .set('failed', true)
+        state.set('loading', false).set('failed', true)
       })
     },
     ['hydrate'](state, { payload }) {
       const { assets, rulers, dimensions } = payload
       return state.withMutations(state => {
         state
-        .set('loading', false)
-        .set('assets', Immutable.fromJS(assets))
-        .set('rulers', Immutable.fromJS(rulers))
-        .set('dimensions', Immutable.fromJS(dimensions))
-        .set('filters', Immutable.fromJS([]))
-        .set('hoveredAssetId', null)
-        .set('activeAssetId', null)
-        .set('pageIndex', 0)
+          .set('loading', false)
+          .set('assets', Immutable.fromJS(assets))
+          .set('rulers', Immutable.fromJS(rulers))
+          .set('dimensions', Immutable.fromJS(dimensions))
+          .set('filters', Immutable.fromJS([]))
+          .set('hoveredAssetId', null)
+          .set('activeAssetId', null)
+          .set('pageIndex', 0)
       })
     },
     ['viewBox/update'](state, { payload }) {
@@ -318,58 +340,58 @@ export default {
       return state.set('hoveredAssetId', payload)
     },
     ['asset/clicked'](state, { payload }) {
-      return state.update('activeAssetId', val => val === payload ? null : payload)
+      return state.update('activeAssetId', val => (val === payload ? null : payload))
     },
-    ['active/clear'] (state) {
+    ['active/clear'](state) {
       return state.set('activeAssetId', null)
     },
     ['filters/removeLast'](state) {
       return state.withMutations(state => {
         state
-        .update('filters', filters => filters.butLast())
-        .set('pageIndex', 0)
-        .set('activeAssetId', null)
+          .update('filters', filters => filters.butLast())
+          .set('pageIndex', 0)
+          .set('activeAssetId', null)
       })
     },
-    ['filters/remove'](state, { payload: { dimension }}) {
+    ['filters/remove'](
+      state,
+      {
+        payload: { dimension },
+      }
+    ) {
       return state.withMutations(state => {
         state
-        .update('filters', filters => filters.filter(filter => filter.get('dimension') !== dimension))
-        .set('pageIndex', 0)
-        .set('activeAssetId', null)
+          .update('filters', filters => filters.filter(filter => filter.get('dimension') !== dimension))
+          .set('pageIndex', 0)
+          .set('activeAssetId', null)
       })
     },
     ['filters/toggle'](state, { payload }) {
-      const { dimension, key, displayName} = payload
+      const { dimension, key, displayName } = payload
       return state.withMutations(state => {
         state
-        .set('activeAssetId', null)
-        .set('pageIndex', 0)
-        .update('filters', filters => {
-          const index = filters.findIndex(filter => filter.get('dimension') === dimension)
-          if (index === -1) return filters.push(Immutable.fromJS(payload))
-          if (filters.getIn([index, 'key']) === key) return filters.delete(index)
-          else return filters.withMutations(filters => {
-            filters
-            .delete(index)
-            .push(Immutable.fromJS(payload))
+          .set('activeAssetId', null)
+          .set('pageIndex', 0)
+          .update('filters', filters => {
+            const index = filters.findIndex(filter => filter.get('dimension') === dimension)
+            if (index === -1) return filters.push(Immutable.fromJS(payload))
+            if (filters.getIn([index, 'key']) === key) return filters.delete(index)
+            else
+              return filters.withMutations(filters => {
+                filters.delete(index).push(Immutable.fromJS(payload))
+              })
           })
-        })
       })
     },
     ['page/change'](state, { payload }) {
       return state.withMutations(state => {
         state
-        .set('activeAssetId', null)
-        .update('pageIndex', index => clamp(
-          index + payload,
-          0,
-          state.get('maxPage') - 1
-        ))
+          .set('activeAssetId', null)
+          .update('pageIndex', index => clamp(index + payload, 0, state.get('maxPage') - 1))
       })
     },
     'set/compressMode'(state, { payload }) {
       return state.set('compressMode', payload)
-    }
-  }
+    },
+  },
 }
