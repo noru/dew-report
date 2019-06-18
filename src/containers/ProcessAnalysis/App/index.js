@@ -11,7 +11,6 @@ import GearListChart from 'react-gear-chart'
 import Header from '#/containers/ProcessAnalysis/Header'
 import Pagination from '#/components/ProcessAnalysis/Pagination'
 import Donut from '#/components/ProcessAnalysis/DonutChart'
-import Tooltip from 'dew-tooltip'
 import Orbit from '#/components/ProcessAnalysis/OrbitChart'
 import ReversedRange from '#/components/ProcessAnalysis/ReversedRange'
 import withClientRect from '../../../HOC/withClientRect'
@@ -23,6 +22,7 @@ import colors from '#/utils/colors'
 import { PaBriefConv, DetailConv } from '#/utils/converters'
 import { warn } from '#/utils/logger'
 import { HumanizeDurationInput, HumanizeDurationLabel as humanize } from '#/utils/helpers'
+import Tooltip from '#/components/common/Tooltip'
 import './app.scss'
 
 const RadioButton = Radio.Button
@@ -40,7 +40,7 @@ const BallsStub = [
   { key: 'respond', i18n: 'accept_incident' },
   { key: 'workingTime', i18n: 'fixing_incident' },
   { key: 'ack', i18n: 'acknowlege_incident' },
-  { key: 'ETTR', i18n: 'close_incident' }
+  { key: 'ETTR', i18n: 'close_incident' },
 ]
 
 function DataOrPlaceHolder(items, placeholderSize) {
@@ -81,34 +81,36 @@ function ensureSize(width, height) {
     width = 1100
   }
   return {
-    outer_R: width * .275,
-    outer_r: width * .2,
-    inner_R: width * .145,
+    outer_R: width * 0.275,
+    outer_r: width * 0.2,
+    inner_R: width * 0.145,
   }
 }
 
 function mapDispatch2Porps(dispatch) {
   return {
     init: () => dispatch({ type: 'ProcessAnalysis/get/all' }),
-    updateDisplayType: (value) => dispatch({
-      type: 'ProcessAnalysis/update/display',
-      data: value.key,
-    }),
-    updateDataType: (value) => dispatch({
-      type:'ProcessAnalysis/update/datatype',
-      data: value,
-    }),
+    updateDisplayType: value =>
+      dispatch({
+        type: 'ProcessAnalysis/update/display',
+        data: value.key,
+      }),
+    updateDataType: value =>
+      dispatch({
+        type: 'ProcessAnalysis/update/datatype',
+        data: value,
+      }),
     updatePagination: (type, pageNumber) => {
       dispatch({
         type: 'ProcessAnalysis/page/change',
-        data: { type, value: pageNumber }
+        data: { type, value: pageNumber },
       })
     },
     updateDistribution: (value, dataType) => {
       let suffix = dataType === 'ettr' ? 'Ettr' : 'Response'
       dispatch({
         type: 'ProcessAnalysis/update/distribution' + suffix,
-        data: value
+        data: value,
       })
     },
     fetchBriefs: extraParam => {
@@ -127,15 +129,18 @@ function mapDispatch2Porps(dispatch) {
 }
 
 function mapState2Props(state) {
-  let { ProcessAnalysis : { pagination, display, dataType, distributionEttr, distributionResponse } } = state
+  let {
+    ProcessAnalysis: { pagination, display, dataType, distributionEttr, distributionResponse },
+  } = state
   return { pagination, display, dataType, distributionEttr, distributionResponse }
 }
 
-@connect(mapState2Props, mapDispatch2Porps)
+@connect(
+  mapState2Props,
+  mapDispatch2Porps
+)
 export class App extends Component<void, Props, void> {
-
-  static getPlaceholder = memoize(count => range(count)
-                           .map(() => Placeholder))
+  static getPlaceholder = memoize(count => range(count).map(() => Placeholder))
   state = {
     briefs: [],
     leftClockwise: false,
@@ -150,12 +155,12 @@ export class App extends Component<void, Props, void> {
     distriResponse: [],
     tooltipX: -861112,
     tooltipY: -861112,
-    tooltipData: []
+    tooltipData: [],
   }
 
-  clickLeftTooth = (evt) => {
+  clickLeftTooth = evt => {
     let data = evt.stripData.data
-    if (this.refs.leftChart.isFocused() && this.state.selected.id === data.id ) {
+    if (this.refs.leftChart.isFocused() && this.state.selected.id === data.id) {
       this.setState({ selected: null })
     } else {
       this.setState({ selected: data })
@@ -163,13 +168,13 @@ export class App extends Component<void, Props, void> {
     }
   }
 
-  clickRightTooth = (evt) => {
+  clickRightTooth = evt => {
     let data = evt.stripData.data
     if (this.refs.rightChart.isFocused() && this.state.selected.id === data.id) {
       this.setState({ selected: null })
     } else {
       let data = evt.stripData.data
-      this.setState({ selected: data})
+      this.setState({ selected: data })
       this.clearFocus('left')
     }
   }
@@ -194,13 +199,13 @@ export class App extends Component<void, Props, void> {
     this.props.updatePagination('detail', next)
   }
   initDistributionMax(dataType) {
-    let [ max, unit ] = HumanizeDurationInput(last(this.getCurrentDistribution(dataType)))
+    let [max, unit] = HumanizeDurationInput(last(this.getCurrentDistribution(dataType)))
     this.setState({
       distriMax: max,
-      distriUnit: unit
+      distriUnit: unit,
     })
   }
-  onClickDonut = (evt) => {
+  onClickDonut = evt => {
     let id = evt.currentTarget.id
     let { dataType } = this.props
     if (id !== dataType) {
@@ -210,7 +215,7 @@ export class App extends Component<void, Props, void> {
   }
 
   getDisplayOptions() {
-    return DisplayOptions.map(o => ({ key: o.key, label: this.props.t(o.key)}))
+    return DisplayOptions.map(o => ({ key: o.key, label: this.props.t(o.key) }))
   }
 
   mountBriefData = (evt, data) => {
@@ -251,7 +256,8 @@ export class App extends Component<void, Props, void> {
     distri.sum = last(phases) // max
     if (phaseData.phase === 'ETTR') {
       this.setState({ distriEttr: distri })
-    } else { // respond
+    } else {
+      // respond
       this.setState({ distriResponse: distri })
     }
   }
@@ -284,10 +290,15 @@ export class App extends Component<void, Props, void> {
     // update label
     let gross = selected || generalGross
     let isEmpty = gross.ETTR == 0
-    let balls = BallsStub.map((b, i) => Object.assign({
-      label: t(b.i18n),
-      distance: isEmpty ? i * 60 : GetDistance(b, gross)
-    }, b))
+    let balls = BallsStub.map((b, i) =>
+      Object.assign(
+        {
+          label: t(b.i18n),
+          distance: isEmpty ? i * 60 : GetDistance(b, gross),
+        },
+        b
+      )
+    )
     // update lane color
     let dataType = this.props.dataType
     let connectIndex = -1
@@ -338,7 +349,8 @@ export class App extends Component<void, Props, void> {
     let distribution
     if (type === 'ettr') {
       distribution = distributionEttr
-    } else { // response_time
+    } else {
+      // response_time
       distribution = distributionResponse
     }
     return distribution
@@ -352,7 +364,7 @@ export class App extends Component<void, Props, void> {
     }
   }
 
-  onToothHover = (evt) => {
+  onToothHover = evt => {
     if (evt.type === 'mouseleave') {
       this.setState({ tooltipX: -861112, tooltipY: -861112 })
     } else {
@@ -363,10 +375,10 @@ export class App extends Component<void, Props, void> {
 
   constructor(props) {
     super(props)
-    EventBus.addEventListener('process-analysis-brief-data', this.mountBriefData )
-    EventBus.addEventListener('process-analysis-detail-data', this.mountDetailData )
-    EventBus.addEventListener('process-analysis-gross-data', this.mountGrossData )
-    EventBus.addEventListener('process-analysis-phase-data', this.mountPhaseData )
+    EventBus.addEventListener('process-analysis-brief-data', this.mountBriefData)
+    EventBus.addEventListener('process-analysis-detail-data', this.mountDetailData)
+    EventBus.addEventListener('process-analysis-gross-data', this.mountGrossData)
+    EventBus.addEventListener('process-analysis-phase-data', this.mountPhaseData)
   }
   componentWillMount() {
     this.initDistributionMax()
@@ -374,10 +386,10 @@ export class App extends Component<void, Props, void> {
   }
 
   componentWillUnmount() {
-    EventBus.removeEventListener('process-analysis-brief-data', this.mountBriefData )
-    EventBus.removeEventListener('process-analysis-detail-data', this.mountDetailData )
-    EventBus.removeEventListener('process-analysis-gross-data', this.mountGrossData )
-    EventBus.removeEventListener('process-analysis-phase-data', this.mountPhaseData )
+    EventBus.removeEventListener('process-analysis-brief-data', this.mountBriefData)
+    EventBus.removeEventListener('process-analysis-detail-data', this.mountDetailData)
+    EventBus.removeEventListener('process-analysis-gross-data', this.mountGrossData)
+    EventBus.removeEventListener('process-analysis-phase-data', this.mountPhaseData)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -385,21 +397,41 @@ export class App extends Component<void, Props, void> {
     let distribution
     if (dataType === 'ettr') {
       distribution = distributionEttr
-    } else { // response_time
+    } else {
+      // response_time
       distribution = distributionResponse
     }
     let max = last(distribution)
     if (max !== this.state.distributionMax) {
-      this.setState({ distributionMax: max})
+      this.setState({ distributionMax: max })
     }
   }
 
   render() {
-    let { briefs, details, selected, generalGross, distriMax, distriUnit, leftClockwise, rightClockwise,
-      distriEttr, distriResponse, tooltipX, tooltipY, tooltipData
+    let {
+      briefs,
+      details,
+      selected,
+      generalGross,
+      distriMax,
+      distriUnit,
+      leftClockwise,
+      rightClockwise,
+      distriEttr,
+      distriResponse,
+      tooltipX,
+      tooltipY,
+      tooltipData,
     } = this.state
-    let { t, updateDisplayType, pagination, clientRect, display, dataType,
-      distributionEttr, distributionResponse
+    let {
+      t,
+      updateDisplayType,
+      pagination,
+      clientRect,
+      display,
+      dataType,
+      distributionEttr,
+      distributionResponse,
     } = this.props
     let { left, right } = pagination
     let { outer_R, outer_r, inner_R } = ensureSize(clientRect.width, clientRect.height)
@@ -407,24 +439,35 @@ export class App extends Component<void, Props, void> {
     let gross = selected || generalGross
     return (
       <div id="app-container" className="process-analysis is-fullwidth">
-        <Header/>
+        <Header />
         <div className="chart-container is-fullwidth">
           <div className="full-chart container">
-
             <div className="display-select">{selectHelper(display, this.getDisplayOptions(), updateDisplayType)}</div>
-            { left.total > left.top &&
-              <Pagination current={CurrentPage(left.skip, left.top)} pageSize={left.top} total={left.total}
-                className="pager-left" onChange={this.onLeftPagerChange}/>
-            }
-            { right.total > right.top &&
-              <Pagination current={CurrentPage(right.skip, right.top)} pageSize={right.top} total={right.total}
-                className="pager-right" onChange={this.onRightPagerChange}/>
-            }
+            {left.total > left.top && (
+              <Pagination
+                current={CurrentPage(left.skip, left.top)}
+                pageSize={left.top}
+                total={left.total}
+                className="pager-left"
+                onChange={this.onLeftPagerChange}
+              />
+            )}
+            {right.total > right.top && (
+              <Pagination
+                current={CurrentPage(right.skip, right.top)}
+                pageSize={right.top}
+                total={right.total}
+                className="pager-right"
+                onChange={this.onRightPagerChange}
+              />
+            )}
             <GearListChart
               id="left-chart"
               ref="leftChart"
-              startAngle={110} endAngle={250}
-              outerRadius={outer_R} innerRadius={outer_r}
+              startAngle={110}
+              endAngle={250}
+              outerRadius={outer_R}
+              innerRadius={outer_r}
               margin={7}
               onClick={this.clickLeftTooth}
               onMouseMove={this.onToothHover}
@@ -432,7 +475,7 @@ export class App extends Component<void, Props, void> {
               clockwise={false}
               clockwiseAnimate={leftClockwise}
               items={DataOrPlaceHolder(briefs, pagination.left.top)}
-              />
+            />
             <Orbit
               id="center-chart"
               radius={Math.max(inner_R, 165)}
@@ -441,21 +484,27 @@ export class App extends Component<void, Props, void> {
               balls={this.getBalls()}
             />
             <div id="legend-container">
-              <h1 className="center-chart-title" style={{top: -(inner_R * .4 - 18) + '%'}}>{gross.name || t('all_chosen_assets')}</h1>
+              <h1 className="center-chart-title" style={{ top: -(inner_R * 0.4 - 18) + '%' }}>
+                {gross.name || t('all_chosen_assets')}
+              </h1>
               <Donut
                 id="ettr"
-                className={classnames("donut-chart-ettr", dataType === 'ettr' ? 'active' : '' )}
+                className={classnames('donut-chart-ettr', dataType === 'ettr' ? 'active' : '')}
                 baseColor={colors.purple}
                 onClick={onClickDonut}
                 title={t('ettr')}
                 data={distriEttr}
-                rows={[GetDonutChartRow(t('average'), gross.ETTR), GetDonutChartRow('P75', gross.ETTR75), GetDonutChartRow('P95', gross.ETTR95)]}
+                rows={[
+                  GetDonutChartRow(t('average'), gross.ETTR),
+                  GetDonutChartRow('P75', gross.ETTR75),
+                  GetDonutChartRow('P95', gross.ETTR95),
+                ]}
                 onMouseMove={evt => this.onDonutHover(evt, distriEttr)}
                 onMouseLeave={this.onDonutHover}
               />
               <Donut
                 id="response_time"
-                className={classnames("donut-chart-response", dataType === 'response_time' ? 'active' : '' )}
+                className={classnames('donut-chart-response', dataType === 'response_time' ? 'active' : '')}
                 baseColor={colors.yellow}
                 onClick={onClickDonut}
                 title={t('response_time')}
@@ -464,19 +513,21 @@ export class App extends Component<void, Props, void> {
                 onMouseMove={evt => this.onDonutHover(evt, distriResponse)}
                 onMouseLeave={this.onDonutHover}
               />
-
             </div>
             <GearListChart
               id="right-chart"
               ref="rightChart"
-              startAngle={290} endAngle={70}
-              outerRadius={outer_R} innerRadius={outer_r}
+              startAngle={290}
+              endAngle={70}
+              outerRadius={outer_R}
+              innerRadius={outer_r}
               margin={3}
               clockwiseAnimate={rightClockwise}
               onClick={this.clickRightTooth}
               onMouseMove={this.onToothHover}
               onMouseLeave={this.onToothHover}
-              items={DataOrPlaceHolder(details, pagination.right.top)} />
+              items={DataOrPlaceHolder(details, pagination.right.top)}
+            />
 
             <div className="range-wrapper">
               <ReversedRange
@@ -484,7 +535,7 @@ export class App extends Component<void, Props, void> {
                 value={distributionEttr}
                 showTooltip={dataType === 'ettr'}
                 unit="d"
-                step={.5}
+                step={0.5}
                 onChange={this.onSliderChange}
               />
               <ReversedRange
@@ -492,36 +543,47 @@ export class App extends Component<void, Props, void> {
                 value={distributionResponse}
                 showTooltip={dataType === 'response_time'}
                 unit="h"
-                step={.1}
+                step={0.1}
                 onChange={this.onSliderChange}
               />
               <InputGroup compact>
-                <InputNumber min={0} value={distriMax} size="small" onChange={val => this.setState({ distriMax: val})} />
-                <RadioGroup value={distriUnit} size="small" onChange={e => this.setState({ distriUnit: e.target.value})}>
+                <InputNumber
+                  min={0}
+                  value={distriMax}
+                  size="small"
+                  onChange={val => this.setState({ distriMax: val })}
+                />
+                <RadioGroup
+                  value={distriUnit}
+                  size="small"
+                  onChange={e => this.setState({ distriUnit: e.target.value })}
+                >
                   <RadioButton value="hour">{t('hour')}</RadioButton>
                   <RadioButton value="day">{t('day')}</RadioButton>
                 </RadioGroup>
               </InputGroup>
-              <Button type="primary" size="small" onClick={this.updateDistributionMax}>{t('submit')}</Button>
+              <Button type="primary" size="small" onClick={this.updateDistributionMax}>
+                {t('submit')}
+              </Button>
             </div>
           </div>
         </div>
-        <Tooltip mouseX={tooltipX} mouseY={tooltipY} anchor="lvc" offsetX={30} >
+        <Tooltip mouseX={tooltipX} mouseY={tooltipY} anchor="lvc" offsetX={30}>
           <div className="donut-tooltip">
-            { typeof tooltipData === 'string' ?
-              tooltipData
-              :
-              tooltipData.map((row, i) => (
-              <tr key={String(i)}>
-                <td style={{color:row.color}}>◼</td>
-                { Number.isFinite(row.range[1]) ?
-                  <td>{HumanizeDurationLabel(row.range[0]) + ' - ' + HumanizeDurationLabel(row.range[1])}</td> :
-                  <td>{t('above_duration', { node: HumanizeDurationLabel(row.range[0])})}</td>
-                }
-                <td>{ToPrecentage((row.value || 0)/ (tooltipData.sum || 1))}</td>
-                <td>{row.value + t('incident_count_unit')}</td>
-              </tr>
-            ))}
+            {typeof tooltipData === 'string'
+              ? tooltipData
+              : tooltipData.map((row, i) => (
+                  <tr key={String(i)}>
+                    <td style={{ color: row.color }}>◼</td>
+                    {Number.isFinite(row.range[1]) ? (
+                      <td>{HumanizeDurationLabel(row.range[0]) + ' - ' + HumanizeDurationLabel(row.range[1])}</td>
+                    ) : (
+                      <td>{t('above_duration', { node: HumanizeDurationLabel(row.range[0]) })}</td>
+                    )}
+                    <td>{ToPrecentage((row.value || 0) / (tooltipData.sum || 1))}</td>
+                    <td>{row.value + t('incident_count_unit')}</td>
+                  </tr>
+                ))}
           </div>
         </Tooltip>
       </div>

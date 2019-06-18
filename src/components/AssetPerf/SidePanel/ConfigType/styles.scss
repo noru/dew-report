@@ -1,9 +1,0 @@
-@import "../../../../styles/variables.scss";
-
-.tr {
-  padding: 5px;
-
-  &:global(.active) {
-    background-color: #ecf6fd;
-  }
-}

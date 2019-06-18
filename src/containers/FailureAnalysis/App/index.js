@@ -11,7 +11,6 @@ import Header from '#/containers/FailureAnalysis/Header'
 import Legend from '#/components/FailureAnalysis/Legend'
 import LegendTable from '#/components/FailureAnalysis/LegendTable'
 import LastYearMarker from '#/components/FailureAnalysis/LastYearMarker'
-import Tooltip from 'dew-tooltip'
 import Pagination from '#/components/FailureAnalysis/Pagination'
 import withClientRect from '../../../HOC/withClientRect'
 import selectHelper from '#/components/common/SelectHelper'
@@ -20,20 +19,16 @@ import './app.scss'
 import cache from '#/utils/cache'
 import { DataTypeMapping } from '#/services'
 import { ToPrecentage } from '#/utils/helpers'
+import Tooltip from '#/components/common/Tooltip'
 
 const Placeholder = { strips: { color: '#F9F9F9', weight: 1, type: 'placeholder' } }
-const Items = [
-  {color: colors.blue, key: 'primary_failure'},
-  {color: colors.gray, key: 'secondary_failure'},
-]
+const Items = [{ color: colors.blue, key: 'primary_failure' }, { color: colors.gray, key: 'secondary_failure' }]
 const ParameterTypes = [
-  {color: colors.purple, key: 'operation_rate'},
-  {color: colors.yellow, key: 'ftfr', type: 'radio'},
-  {color: colors.green, key: 'incident_count'},
+  { color: colors.purple, key: 'operation_rate' },
+  { color: colors.yellow, key: 'ftfr', type: 'radio' },
+  { color: colors.green, key: 'incident_count' },
 ]
-const CheckBoxes = [
-  {color: colors.red, key: 'same_period_last_year'},
-]
+const CheckBoxes = [{ color: colors.red, key: 'same_period_last_year' }]
 const DisplayOptions = [
   { key: 'display_asset_type' },
   // { key: 'display_brand' }, // hide "品牌" choice as requested
@@ -49,7 +44,7 @@ function DataOrPlaceHolder(items, placeholderSize) {
 }
 
 function getCurrentPage(skip, top) {
-  return Math.ceil((skip + 1)/ top)
+  return Math.ceil((skip + 1) / top)
 }
 
 function ensureSize(width, height) {
@@ -58,17 +53,17 @@ function ensureSize(width, height) {
     width = 1100
   }
   return {
-    outer_R: width * .275,
-    outer_r: width * .2,
-    inner_R: width * .175,
-    inner_r: width * .142
+    outer_R: width * 0.275,
+    outer_r: width * 0.2,
+    inner_R: width * 0.175,
+    inner_r: width * 0.142,
   }
 }
 
 function mapDispatch2Props(dispatch) {
   return {
     init: () => dispatch({ type: 'FailureAnalysis/get/all' }),
-    updateDisplayType: (value) => {
+    updateDisplayType: value => {
       dispatch({ type: 'FailureAnalysis/update/display', data: value.key })
     },
     fetchBriefs: (chart, pageNumber, params) => {
@@ -79,15 +74,18 @@ function mapDispatch2Props(dispatch) {
 }
 
 function mapState2Props(state) {
-  let { FailureAnalysis : { pagination, display, dataType, showLastYear } } = state
+  let {
+    FailureAnalysis: { pagination, display, dataType, showLastYear },
+  } = state
   return { pagination, display, dataType, showLastYear }
 }
 
-@connect(mapState2Props, mapDispatch2Props)
+@connect(
+  mapState2Props,
+  mapDispatch2Props
+)
 export class App extends Component<void, Props, void> {
-
-  static getPlaceholder = memoize(count => range(count)
-                           .map(() => Placeholder))
+  static getPlaceholder = memoize(count => range(count).map(() => Placeholder))
   state = {
     tooltipX: -861112,
     tooltipY: -861112,
@@ -108,7 +106,7 @@ export class App extends Component<void, Props, void> {
     },
   }
 
-  showTooltip = (evt) => {
+  showTooltip = evt => {
     let { t, dataType } = this.props
     if (evt.type === 'mouseleave') {
       this.setState({ tooltipX: -861112, tooltipY: -861112 })
@@ -125,20 +123,20 @@ export class App extends Component<void, Props, void> {
       }
       if (strip.data.val) {
         let val = strip.data.val[DataTypeMapping[type]]
-        return name + ' ' + (type === 'incident_count' ? (val + unit) : ToPrecentage(val))
+        return name + ' ' + (type === 'incident_count' ? val + unit : ToPrecentage(val))
       }
       return 'N.A.'
     }
   }
 
-  isSameDevice = (evt) => {
+  isSameDevice = evt => {
     // id is not a uuid, so also compare name
     let { id, name } = evt.strips[0].data.key
     let { id: selectedId, name: selectedName } = this.state.selectedDevice
-    return (id === selectedId) && (name === selectedName)
+    return id === selectedId && name === selectedName
   }
 
-  clickLeftTooth = (evt) => {
+  clickLeftTooth = evt => {
     // 1, central chart: fetch reasons
     let param = {}
     let isFocused = this.refs.leftChart.isFocused()
@@ -165,7 +163,7 @@ export class App extends Component<void, Props, void> {
     this.clearFocus('right')
   }
 
-  clickRightTooth = (evt) => {
+  clickRightTooth = evt => {
     let isFocused = this.refs.rightChart.isFocused()
     if (isFocused && this.isSameDevice(evt)) {
       this.hideDevice()
@@ -177,22 +175,22 @@ export class App extends Component<void, Props, void> {
   }
 
   showDevice(strips) {
-    let [ current ] = strips
+    let [current] = strips
     let lastYear = strips.lastYear
     const device = {
       show: true,
       name: current.data.key.name,
       id: current.data.key.id,
       current: {
-        'operation_rate': ToPrecentage(current.data.val.avail) ,
-        'ftfr': ToPrecentage(current.data.val.ftfr),
-        'incident_count': current.data.val.fix,
+        operation_rate: ToPrecentage(current.data.val.avail),
+        ftfr: ToPrecentage(current.data.val.ftfr),
+        incident_count: current.data.val.fix,
       },
       lastYear: {
-        'operation_rate': lastYear ? ToPrecentage(lastYear.data.val.avail) : '-',
-        'ftfr': lastYear ? ToPrecentage(lastYear.data.val.ftfr) : '-',
-        'incident_count': lastYear ? lastYear.data.val.fix : '-',
-      }
+        operation_rate: lastYear ? ToPrecentage(lastYear.data.val.avail) : '-',
+        ftfr: lastYear ? ToPrecentage(lastYear.data.val.ftfr) : '-',
+        incident_count: lastYear ? lastYear.data.val.fix : '-',
+      },
     }
     this.setState({ selectedDevice: device })
   }
@@ -215,7 +213,7 @@ export class App extends Component<void, Props, void> {
 
   onRightPagerChange = next => {
     let current = this.getCurrentPageRight()
-    this.setState({ rightClockwise: current < next})
+    this.setState({ rightClockwise: current < next })
     this.props.fetchBriefs('right', next)
   }
 
@@ -226,26 +224,32 @@ export class App extends Component<void, Props, void> {
   }
 
   getDisplayOptions() {
-    return DisplayOptions.map(o => ({ key: o.key, label: this.props.t(o.key)}))
+    return DisplayOptions.map(o => ({ key: o.key, label: this.props.t(o.key) }))
   }
 
-  mountBriefData = (evt) => {
+  mountBriefData = evt => {
     let { t } = this.props
-    let [ current, lastYear ] = evt.target
+    let [current, lastYear] = evt.target
     if (current.length === 0) {
       let target = t(current.type === 'left' ? 'group_info' : 'asset_info')
       message.info(target + ': ' + t('no_more_data'))
     }
     if (current.type === 'left') {
-      this.setState({ leftItems: current, lastYear: { leftItems: lastYear, rightItems: this.state.lastYear.rightItems } })
+      this.setState({
+        leftItems: current,
+        lastYear: { leftItems: lastYear, rightItems: this.state.lastYear.rightItems },
+      })
       this.hideDevice() // everytime leftside got refreshed, selected device should be cleared
-    } else if (current.type === 'right'){
-      this.setState({ rightItems: current, lastYear: { rightItems: lastYear, leftItems: this.state.lastYear.leftItems } })
+    } else if (current.type === 'right') {
+      this.setState({
+        rightItems: current,
+        lastYear: { rightItems: lastYear, leftItems: this.state.lastYear.leftItems },
+      })
     }
     this.clearFocus(current.type)
   }
 
-  mountReason = (evt) => {
+  mountReason = evt => {
     let { t } = this.props
     let reasons = evt.target
     if (reasons.length === 0) {
@@ -266,8 +270,8 @@ export class App extends Component<void, Props, void> {
 
   constructor(props) {
     super(props)
-    EventBus.addEventListener('failure-analysis-brief-data', this.mountBriefData )
-    EventBus.addEventListener('failure-analysis-reason-data', this.mountReason )
+    EventBus.addEventListener('failure-analysis-brief-data', this.mountBriefData)
+    EventBus.addEventListener('failure-analysis-reason-data', this.mountReason)
   }
 
   componentWillMount() {
@@ -275,39 +279,58 @@ export class App extends Component<void, Props, void> {
   }
 
   componentWillUnmount() {
-    EventBus.removeEventListener('failure-analysis-brief-data', this.mountBriefData )
-    EventBus.removeEventListener('failure-analysis-reason-data', this.mountReason )
+    EventBus.removeEventListener('failure-analysis-brief-data', this.mountBriefData)
+    EventBus.removeEventListener('failure-analysis-reason-data', this.mountReason)
   }
 
   render() {
-    let { tooltipX, tooltipY, tooltip,lastYear, selectedDevice,
-      leftItems, centerItems, rightItems, leftClockwise, rightClockwise } = this.state
+    let {
+      tooltipX,
+      tooltipY,
+      tooltip,
+      lastYear,
+      selectedDevice,
+      leftItems,
+      centerItems,
+      rightItems,
+      leftClockwise,
+      rightClockwise,
+    } = this.state
     let { updateDisplayType, pagination, clientRect, display } = this.props
     let { left, right } = pagination
-    let { outer_R, outer_r, inner_R, inner_r  } = ensureSize(clientRect.width, clientRect.height)
+    let { outer_R, outer_r, inner_R, inner_r } = ensureSize(clientRect.width, clientRect.height)
 
     return (
       <div id="app-container" className="failure-analysis is-fullwidth">
-        <Header/>
+        <Header />
         <div className="chart-container is-fullwidth">
           <div className="full-chart container">
-
             <div className="display-select">{selectHelper(display, this.getDisplayOptions(), updateDisplayType)}</div>
-            {
-              left.total > left.top &&
-              <Pagination current={getCurrentPage(left.skip, left.top)} pageSize={left.top} total={left.total}
-                className="pager-left" onChange={this.onLeftPagerChange}/>
-            }
-            {
-              right.total > right.top &&
-              <Pagination current={getCurrentPage(right.skip, right.top)} pageSize={right.top} total={right.total}
-                className="pager-right" onChange={this.onRightPagerChange}/>
-            }
+            {left.total > left.top && (
+              <Pagination
+                current={getCurrentPage(left.skip, left.top)}
+                pageSize={left.top}
+                total={left.total}
+                className="pager-left"
+                onChange={this.onLeftPagerChange}
+              />
+            )}
+            {right.total > right.top && (
+              <Pagination
+                current={getCurrentPage(right.skip, right.top)}
+                pageSize={right.top}
+                total={right.total}
+                className="pager-right"
+                onChange={this.onRightPagerChange}
+              />
+            )}
             <GearListChart
               id="left-chart"
               ref="leftChart"
-              startAngle={110} endAngle={250}
-              outerRadius={outer_R} innerRadius={outer_r}
+              startAngle={110}
+              endAngle={250}
+              outerRadius={outer_R}
+              innerRadius={outer_r}
               margin={7}
               onClick={this.clickLeftTooth}
               onMouseMove={this.showTooltip}
@@ -316,25 +339,34 @@ export class App extends Component<void, Props, void> {
               clockwiseAnimate={leftClockwise}
               items={DataOrPlaceHolder(leftItems, pagination.left.top)}
               extra={renderLastYearData(lastYear.leftItems)}
-              />
+            />
             <GearListChart
               id="center-chart"
-              startAngle={90} endAngle={90}
-              outerRadius={Math.max(inner_R, 200)} innerRadius={Math.max(inner_r, 160)}
+              startAngle={90}
+              endAngle={90}
+              outerRadius={Math.max(inner_R, 200)}
+              innerRadius={Math.max(inner_r, 160)}
               margin={8}
               onMouseMove={this.showTooltip}
               onMouseLeave={this.showTooltip}
-              items={DataOrPlaceHolder(centerItems, null, 13)} />
+              items={DataOrPlaceHolder(centerItems, null, 13)}
+            />
             <div id="legend-container">
               <Legend items={Items}>
-                <LegendTable items={ParameterTypes} selectedDevice={selectedDevice.show && selectedDevice} checkBoxes={CheckBoxes}/>
+                <LegendTable
+                  items={ParameterTypes}
+                  selectedDevice={selectedDevice.show && selectedDevice}
+                  checkBoxes={CheckBoxes}
+                />
               </Legend>
             </div>
             <GearListChart
               id="right-chart"
               ref="rightChart"
-              startAngle={290} endAngle={70}
-              outerRadius={outer_R} innerRadius={outer_r}
+              startAngle={290}
+              endAngle={70}
+              outerRadius={outer_R}
+              innerRadius={outer_r}
               margin={3}
               onClick={this.clickRightTooth}
               onMouseMove={this.showTooltip}
@@ -343,11 +375,14 @@ export class App extends Component<void, Props, void> {
               items={DataOrPlaceHolder(rightItems, pagination.right.top)}
               extra={renderLastYearData(lastYear.rightItems)}
             />
-
           </div>
-          { tooltip && <Tooltip mouseX={tooltipX} mouseY={tooltipY} offsetY={-13} anchor="hcb">
-            <div style={{color: tooltip && tooltip.color}} className="tooltip-content">{tooltip}</div>
-          </Tooltip> }
+          {tooltip && (
+            <Tooltip mouseX={tooltipX} mouseY={tooltipY} offsetY={-13} anchor="hcb">
+              <div style={{ color: tooltip && tooltip.color }} className="tooltip-content">
+                {tooltip}
+              </div>
+            </Tooltip>
+          )}
         </div>
       </div>
     )
@@ -366,7 +401,7 @@ const LastYearInidicator = (props, lastYear) => {
   // create a dict to boost lookup performance. TOOD: do it in converter?
   if (lastYear.dict === undefined) {
     lastYear.dict = {}
-    lastYear.forEach(item => lastYear.dict[item.data.key.id] = item)
+    lastYear.forEach(item => (lastYear.dict[item.data.key.id] = item))
   }
   let lastYearItem = lastYear.dict[get(current, 'data.key.id')]
   if (lastYearItem === undefined) {
@@ -376,11 +411,6 @@ const LastYearInidicator = (props, lastYear) => {
   let lastYearItemWeight = (lastYearItem.strips[0].value * current.strips[0].weight) / current.strips[0].value
   let height = (outerRadius - innerRadius) * lastYearItemWeight
 
-  return (
-    <LastYearMarker
-      r={props.innerRadius + height}
-      {...props}
-    />
-  )
+  return <LastYearMarker r={props.innerRadius + height} {...props} />
 }
 export default translate()(withClientRect(App))
