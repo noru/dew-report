@@ -1,0 +1,226 @@
+:global #app-container.process-analysis {
+
+  height: 100vh;
+  .full-chart {
+    position: relative;
+    height: 100%;
+    min-height: 600px;
+    min-width: 920px;
+    width: auto;
+
+    .gear-list-chart .tooth {
+      transition: opacity .3s ease-in-out;
+    }
+    .gear-list-chart.child-focused .tooth:not(.focused){
+      opacity: .5 !important;
+    }
+  }
+
+  .chart-container {
+    height: 100%;
+  }
+
+  .display-select {
+    position: absolute;
+    z-index: 99;
+    left: 2%;
+    top: 10%;
+  }
+
+  .pager {
+    position: absolute;
+    transform: translateY(-54%);
+    -webkit-transform: translateY(-54%);
+    top: 50%;
+    z-index: 99;
+  }
+
+  .pager-left {
+    left: 0;
+  }
+
+  .pager-right {
+    right: 12%;
+  }
+  #left-chart {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-54%);
+    -webkit-transform: translateY(-54%);
+    left: 4%;
+  }
+
+  #center-chart {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+    transform: translate(-50%, -54%);
+    -webkit-transform: translate(-50%, -54%);
+    z-index: 98;
+    user-select: none;
+    pointer-events: none;
+    svg {
+      overflow: visible;
+    }
+  }
+
+  #right-chart {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-54%);
+    -webkit-transform: translateY(-54%);
+    right: 15%;
+  }
+
+  #legend-container {
+    position: absolute;
+    top: 50%;
+    left: 45%;
+    transform: translate(-50%, -57%);
+    -webkit-transform: translate(-50%, -57%);
+    z-index: 99;
+    width: 300px;
+    height: 300px;
+
+    > .center-chart-title {
+      left: 50%;
+      display: inline-block;
+      position: relative;
+      transform: translateX(-50%);
+      -webkit-transform: translateX(-50%);
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+  }
+
+  #legend-container > .donut-chart {
+    position: absolute;
+    user-select: none;
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.02);
+      -webkit-transform: scale(1.02);
+    }
+    &:not(.active) {
+      opacity: .5
+    }
+    &:not(.active):hover {
+      opacity: 1
+    }
+    &.donut-chart-ettr {
+      right: 9%;
+      bottom: 0;
+    }
+    &.donut-chart-response {
+      top: 0;
+      left: 9%;
+    }
+  }
+  .range-wrapper {
+    width: 8em;
+    border: 1px solid #bababa;
+    border-radius: 1em;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    .hidden {
+      display: none;
+    }
+    .ant-input-number,
+    .ant-radio-group {
+      margin-bottom: .5em;
+    }
+    .ant-input-number {
+      width: 4.2em;
+    }
+    button {
+      margin-bottom: 1em;
+      width: 106px;
+    }
+    .ant-radio-group label {
+      padding: 0px 4px;
+      &.ant-radio-button-wrapper-checked {
+        color: white;
+      }
+    }
+    .rc-slider {
+      margin: 2em;
+      margin-bottom: 1.2em;
+      height: 25em;
+    }
+
+    .rc-slider-handle-1:hover,
+    .rc-slider-handle-4:hover {
+      cursor: not-allowed;
+    }
+    .rc-slider .rc-slider-handle.rc-slider-handle-1,
+    .rc-slider .rc-slider-handle.rc-slider-handle-4 {
+      border-color: #bababa;
+      cursor: not-allowed;
+    }
+
+    .slider-ettr {
+      $base-color: #B276AF;
+      &:not(.hidden) ~ button {
+        background-color: $base-color;
+        border-color: $base-color;
+      }
+      &:not(.hidden) ~ .ant-input-group .ant-radio-group label.ant-radio-button-wrapper-checked {
+        background-color: $base-color;
+        border-color: $base-color;
+        box-shadow: -1px 0 0 0 $base-color;
+      }
+      .rc-slider-handle {
+        border-color: $base-color;
+      }
+      .rc-slider-track-1 {
+        background-color: darken($base-color, 28%)
+      }
+      .rc-slider-track-2 {
+        background-color: darken($base-color, 14%)
+      }
+      .rc-slider-track-3 {
+        background-color: $base-color;
+      }
+    }
+
+    .slider-response_time {
+      $base-color: #D0BA54;
+      &:not(.hidden) ~ button {
+        background-color: $base-color;
+        border-color: $base-color;
+      }
+      &:not(.hidden) ~ .ant-input-group .ant-radio-group label.ant-radio-button-wrapper-checked {
+        background-color: $base-color;
+        border-color: $base-color;
+        box-shadow: -1px 0 0 0 $base-color;
+      }
+      .rc-slider-handle {
+        border-color: $base-color;
+      }
+      .rc-slider-track-1 {
+        background-color: darken($base-color, 28%)
+      }
+      .rc-slider-track-2 {
+        background-color: darken($base-color, 14%)
+      }
+      .rc-slider-track-3 {
+        background-color: $base-color;
+      }
+    }
+  }
+  .donut-tooltip {
+    background: #dadada;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 12px 7px;
+
+    td {
+      padding-right: .4em;
+    }
+  }
+}
+
+:global body .rc-slider-tooltip-content div.rc-slider-tooltip-inner {
+  color: #4a4a4a;
+}

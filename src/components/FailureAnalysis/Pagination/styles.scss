@@ -1,0 +1,44 @@
+:global .pager {
+  color: #595959;
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .prev,
+  .next {
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 20px;
+    height: 36px;
+    cursor: pointer;
+
+    &.disabled {
+      color: #b6c3cc;
+      cursor: not-allowed;
+    }
+  }
+
+  .prev {
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 18px solid currentColor;
+  }
+
+  .next {
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 18px solid currentColor;
+  }
+
+  .counter {
+    margin: 15px 0;
+    font-size: 18px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+  }
+}
+
+

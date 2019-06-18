@@ -1,0 +1,40 @@
+$primary: #5b84d7;
+
+@import '../../node_modules/bulma/sass/utilities/_all'
+@import '../../node_modules/bulma/sass/base/_all'
+@import '../../node_modules/bulma/sass/components/_all'
+@import '../../node_modules/bulma/sass/grid/_all'
+@import '../../node_modules/bulma/sass/layout/_all'
+@import '../../node_modules/bulma/sass/elements/_all'
+
+@import '../../node_modules/rc-slider/assets/index.css'
+
+html, body, #app, #app-container
+  height: 100%
+  margin: 0
+  padding: 0
+
+#app
+  font-family: Roboto,"Helvetica Neue",sans-serif
+  height: 100vh
+
+svg text
+  fill: currentColor
+  user-select: none
+
+.clear-fix
+  clear: both
+
+.px-datetime-range-panel
+  z-index: 199
+
+.ant-select-dropdown-menu
+  margin-left: 0
+
+body div.rc-slider-tooltip-inner
+  padding: 6px 10px
+  color: initial
+  background-color: transparent
+  border: none
+  box-shadow: none
+  font-size: .9em

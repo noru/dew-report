@@ -1,0 +1,20 @@
+:global .response-time-chart {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .chart-content {
+    background: white;
+    border-radius: .5em;
+    margin-top: 1em;
+    overflow: hidden;
+    flex: 1;
+    box-shadow: 0px 6px 40px -15px rgba(0,0,0,0.58);
+  }
+
+  .no-data-placeholder {
+    text-align: center;
+    top: 40%;
+    position: relative;
+  }
+}

@@ -1,0 +1,53 @@
+.wrapper {
+  padding: 5px 10px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.title {
+  width: 40px;
+}
+
+.img {
+  margin-right: 10px;
+  width: 60px;
+  height: 50px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  color: #6b6b6b;
+}
+
+.block {
+  width: 35px;
+}
+
+.small {
+  font-size: smaller;
+}
+
+.three {
+  padding: 5px 10px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  .content {
+    margin-left: 0.15em;
+    :global .dew-editblock {
+      input {
+        width: 1.5em;
+      }
+    }
+  }
+  > * {
+    vertical-align: top;
+    display: inline-block;
+  }
+}
+
+.main {
+  display: flex;
+}

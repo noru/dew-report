@@ -1,0 +1,90 @@
+@import "../../styles/variables.scss";
+
+$filtersHeight: 50px;
+
+.container {
+  font-size: 14px;
+  // reset for shell.css
+  line-height: 1.5 !important;
+  font-family: Roboto, "Helvetica Neue", sans-serif !important;
+  color: '#6b6b6b';
+  position: relative;
+  height: 100vh;
+}
+
+.filters {
+  height: $filtersHeight;
+  padding: 10px;
+}
+
+.chartWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100% - #{$filtersHeight});
+  position: relative;
+}
+
+.core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  z-index: 10;
+}
+
+.leftPager,
+.rightPager {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.leftPager {
+  left: 5%;
+
+  @media (max-width: 1250px) {
+    left: 1%;
+  }
+
+  @media (max-width: 768px) {
+    left: 0.5%;
+  }
+}
+
+.rightPager {
+  right: 5%;
+
+  @media (max-width: 1250px) {
+    right: 1%;
+  }
+
+  @media (max-width: 768px) {
+    right: 0.5%;
+  }  
+}
+
+.asset,
+.group {
+  flex: 1;
+  height: 100%;
+  position: relative;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.groupby {
+  position: absolute;
+  right: 200px;
+  top: 20px;
+}
+
+.text {
+  fill: $chart-title-color;
+}

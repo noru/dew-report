@@ -1,0 +1,33 @@
+@font-face {
+	font-family: DewIcon;
+	src: url(../fonts/DewIcon.eot);
+	src: url(../fonts/DewIcon.eot?#iefix) format("eot"),
+       url(../fonts/DewIcon.woff2) format("woff2"),
+       url(../fonts/DewIcon.woff) format("woff"),
+       url(../fonts/DewIcon.ttf) format("truetype"),
+       url(../fonts/DewIcon.svg#DewIcon) format("svg");
+}
+
+.dewicon:before {
+	font-family: DewIcon;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	text-decoration: none;
+	text-transform: none;
+	vertical-align: middle;
+}
+.dewicon-blank:before {
+	content: "\E001";
+}
+.dewicon-circle-full:before {
+	content: "\E002";
+}
+.dewicon-circle-high:before {
+	content: "\E003";
+}
+.dewicon-circle-low:before {
+	content: "\E004";
+}

@@ -1,0 +1,18 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.layout-main {
+  padding: 0;
+  height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+.dew-filterbar {
+  padding: 1em 0;
+}

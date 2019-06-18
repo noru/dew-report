@@ -1,0 +1,13 @@
+@import "../../../styles/variables.scss";
+
+.text {
+  fill: $chart-title-color;
+}
+
+.anchorStart {
+  text-anchor: start;
+}
+
+.anchorEnd {
+  text-anchor: end;
+}

@@ -1,0 +1,63 @@
+@import "../../../../styles/variables.scss";
+
+.treeNodes {
+  fill: $chart-title-color;
+
+  text {
+    text-anchor: middle;
+    // pointer-events: none;
+  }
+
+  circle {
+    stroke-width: 1px;
+  }
+}
+
+.opacityPointOne {
+  opacity: 0.1;
+}
+
+.opacityPointSix {
+  opacity: 0.6;
+}
+
+.opacityPointNine {
+  opacity: 0.9;
+}
+
+.strokeYellow {
+  stroke: rgb(235, 220, 81);
+}
+
+.strokeGray {
+  stroke: rgb(178, 178, 178);
+}
+
+.strokeOrange {
+  stroke: rgb(277, 110, 21);
+}
+
+.fillYellow {
+  fill: rgb(235, 220, 81);
+}
+
+.fillGray {
+  fill: rgb(178, 178, 178);
+}
+
+.fillOrange {
+  fill: rgb(277, 110, 21);
+}
+
+.transparentFill {
+  // transparent fill to occupy own place
+  fill: rgba(255, 255, 255, 0);
+}
+
+.noFill {
+  fill: none;
+}
+
+.noPointerEvent {
+  pointer-events: none;
+}

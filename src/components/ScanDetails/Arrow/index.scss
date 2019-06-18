@@ -1,0 +1,11 @@
+.arrow {
+  color: #595959;
+  width: 20px;
+  height: 36px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 18px solid currentColor;
+  &[disabled="true"] {
+    color: #b6c3cc;
+  }
+}

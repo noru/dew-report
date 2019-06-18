@@ -1,0 +1,25 @@
+.star {
+  overflow: hidden;
+}
+
+.rateWrapper {
+  position: relative;
+  height: 22px;
+  line-height: 22px;
+  overflow: hidden;
+}
+
+.rate {
+  color: #d6c25e;
+  padding: 0;
+  position: absolute;
+  z-index: 1;
+  display: block;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.rateBg {
+  color: #aaa; 
+}

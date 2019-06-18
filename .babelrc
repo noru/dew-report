@@ -1,0 +1,33 @@
+{
+  "presets": [
+    ["env", { "modules": false }],
+    "react",
+    "stage-0"
+  ],
+  "plugins":[
+    "transform-decorators-legacy",
+    "transform-object-assign",
+    [
+      "transform-runtime",
+      {
+        "polyfill":false,
+        "regenerator":true
+      }
+    ],
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "style": true
+      }
+    ]
+  ],
+  "comments": false,
+  "env": {
+    "development":{
+      "plugins":[
+        "react-hot-loader/babel"
+      ]
+    }
+  }
+}

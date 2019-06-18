@@ -1,0 +1,37 @@
+@import "../../../styles/variables.scss";
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+}
+
+.desc {
+  margin-left: 5px;
+}
+
+.icon {
+  font-size: 40px;
+}
+
+.empty {
+  color: $brand-primary;
+}
+
+.error {
+  color: $brand-danger;
+}
+
+.loading {
+  color: $brand-primary;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg)
+  }
+  100% {
+    transform: rotate(360deg)
+  }
+}

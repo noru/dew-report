@@ -1,0 +1,143 @@
+@import "../../../styles/variables.scss";
+
+.sidepanel {
+  height: 100%;
+  text-align: center;
+
+  :global {
+    .dewicon-circle-high {
+      color: $gray;
+    }
+
+    .dewicon-circle-low {
+      color: $brand-warning;
+    }
+
+    .dewicon-circle-full {
+      color: $brand-danger;
+    }
+  }
+}
+
+.tabs {
+  display: inline-block;
+  position: relative;
+
+  .sliding {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: $brand-primary;
+    height: 2px;
+    transition: .2s ease-in-out;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 180px;
+  }
+
+  li {
+    flex: 1;
+    padding: 10px 0px;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+
+    &:hover,
+    &.active {
+      color: $brand-primary;
+    }
+  }
+}
+
+.tabContent {
+  max-height: calc(100% - 50px);
+  padding: 10px;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+:global {
+  .ant-table-fixed-header .ant-table-scroll .ant-table-header {
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  .ant-table-wrapper:after,
+  .ant-table-wrapper:before {
+    content: '' !important;
+  }
+
+  .ant-table-body {
+    background-color: transparent;
+  }
+
+  .ant-checkbox-wrapper {
+    &:hover .ant-checkbox-inner {
+      border-color: white;
+    }
+  }
+
+  .ant-checkbox-inner {
+    background-color: transparent;
+    border-color: white;
+  }
+
+  thead, thead th {
+    background-color: transparent;
+  }
+
+  .ant-table-scroll:after {
+    background: none;
+  }
+
+  .ant-table-header {
+    background: none;
+  }
+
+  .ant-table {
+    border-radius: 8px;
+
+    table {
+      /* ditry override for the wrong shell.css:11 `margin-bottom: 1rem` */
+      margin-bottom: 0 !important;
+    }
+
+    .ant-table-row:last-child td:last-child {
+      border-bottom-right-radius: 8px;
+    }
+
+    tr > th {
+      padding: 6px 8px !important;
+      line-height: 20px;
+    }
+
+    .ant-table-header {
+      margin-bottom: 0 !important;
+    }
+
+    .ant-table-header,
+    .ant-table-body,
+    .ant-table-thead>tr>th {
+      background-color: transparent;
+    }
+  }
+
+  .ant-table-fixed-header {
+    .ant-table-scroll .ant-table-header {
+      padding-bottom: 0px;
+      margin-bottom: -15px;
+    }
+  }
+}
