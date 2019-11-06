@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "antd": "^2.11.0",
-    "axios": "^0.16.1",
+    "axios": "^0.18.1",
     "babel-plugin-import": "^1.1.1",
     "bulma": "^0.5.1",
     "bundle-loader": "^0.5.5",
