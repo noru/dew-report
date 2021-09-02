@@ -87,7 +87,7 @@
     "i18next-browser-languagedetector": "^2.0.0",
     "i18next-localstorage-cache": "^1.1.1",
     "i18next-xhr-backend": "^1.4.2",
-    "immer": "^1.5.0",
+    "immer": "^9.0.6",
     "immutable": "^3.8.1",
     "kizzy": "^0.0.5",
     "less": "^2.7.2",
